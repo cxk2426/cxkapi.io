@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API大全</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    header {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+    header img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    header img.active {
+      opacity: 1;
+    }
+  .section-title {
+      font-size: 18px;
+      margin: 20px 0 10px;
+      padding-left: 10px;
+      border-left: 5px solid #007bff;
+    }
+  .api-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      padding: 0 20px;
+    }
+  .api-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 10px;
+      flex-basis: calc(20% - 20px);
+      max-width: calc(20% - 20px);
+    }
+  .api-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background-color: transparent;
+      transition: transform 0.3s ease;
+    }
+  .api-icon:hover {
+      transform: scale(1.1);
+    }
+  .api-item p {
+      font-size: 14px;
+      color: #333;
+      margin-top: 5px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  .search-container {
+      text-align: center;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 400px;
+    }
+  .search-container input {
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    /* 自定义模态框样式 */
+  .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+  .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+  .modal h3 {
+      margin-bottom: 15px;
+    }
+  .modal-buttons {
+      margin-top: 20px;
+    }
+  .modal-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 3px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+  .modal-buttons #cancelButton {
+      background-color: #ccc;
+      color: #333;
+    }
+  .modal-buttons #confirmButton {
+      background-color: #007bff;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://api.suyanw.cn/api/comic.php" alt="轮播图" class="active">
+  </header>
+  <!-- 自定义模态框 -->
+  <div class="modal" id="myModal">
+    <div class="modal-content">
+      <h3>温馨提示</h3>
+      <p id="modalText"></p>
+      <div class="modal-buttons">
+        <button id="cancelButton">取消</button>
+        <button id="confirmButton">确定</button>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">最近更新</div>
+  <div class="api-container" id="topApiContainer"></div>
+  <div class="section-title">API大全</div>
+  <div class="api-container" id="apiContainer"></div>
+  <div class="section-title">其他API大全</div>
+  <div class="api-container" id="otherApiContainer"></div>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="搜索API">
+  </div>
+  <script>
+    // 置顶API列表
+    const topApiList = [
+         { name: "迟言API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3465221490&spec=640", linkUrl: "https://cyapi.top/" },
+            { name: "客源API", imgUrl: "https://web.qster.top/static/assets/img/my.gif", linkUrl: "https://api.qster.top/API/" },
+      { name: "叶秋", imgUrl: "http://q.qlogo.cn/headimg_dl?dst_uin=3182094967&spec=640", linkUrl: "https://yeqiuapi.cnunon.cn/" },
+      { name: "繁华落寞", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744008106.3254.7_81.png", linkUrl: "https://api.s01s.cn/" },
+      { name: "龙珠API", imgUrl: "https://www.hhlqilongzhu.cn/assets/resource/favicon.png", linkUrl: "https://www.hhlqilongzhu.cn/" },
+      { name: "PearAPI", imgUrl: "https://api.pearktrue.cn/favicon.ico", linkUrl: "https://api.pearktrue.cn/" },
+      { name: "倾梦API", imgUrl: "https://api.317ak.com/favicon.ico", linkUrl: "https://api.317ak.com" },
+      { name: "桑帛云API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3498949583&spec=640", linkUrl: "https://api.lolimi.cn/" },
+      { name: "枫林API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1225579156&spec=640", linkUrl: "https://api.yuafeng.cn/" },
+{ name: "独角兽API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1164371410&spec=640", linkUrl: "https://ecyapi.cn/" },
+{ name: "长歌API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2104915817&spec=640", linkUrl: "http://bot.bska.top/" },
+{ name: "诺诺子API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3182094967&spec=640", linkUrl: "https://api.nuonuozi.cn/" },
+{ name: "巡回寺API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2212238088&spec=640", linkUrl: "https://xunhuisi.store/" },
+{ name: "花花的API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3420802604&spec=640", linkUrl: "https://api.lovestory.wiki/" },
+{ name: "姬落API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2398026709&spec=640", linkUrl: "http://110.40.70.113:25514/" },
+{ name: "轩心云API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744016814.0402.3_470.png", linkUrl: "https://www.yx520.ltd/" },
+{ name: "小梦想API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1094292807&spec=640", linkUrl: "https://api.magisk.icu/" }
+    ];
+    // 普通API列表
+    const apiList = [
+     { name: "云综合API", imgUrl: "https://api.03c3.cn/favicon.ico", linkUrl: "https://api.03c3.cn/" },
+      { name: "如诗API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744009087.7957.9_893.png", linkUrl: "https://api.likepoems.com/" },
+      { name: "小鹏API", imgUrl: "https://web.qster.top/static/assets/img/example.png", linkUrl: "https://lipenglei.com/webpage/api/" },
+      { name: "Laef-API", imgUrl: "http://api.leafone.cn/favicon.ico", linkUrl: "http://api.leafone.cn/" },
+      { name: "草莓API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744009385.7077.2_708.png", linkUrl: "http://api.cmvip.cn/" },
+      { name: "Hanzi-API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744009496.5949.5_24.png", linkUrl: "http://lovestory.wiki/" },
+      { name: "酷乐API", imgUrl: "https://api.kuleu.com/favicon.ico", linkUrl: "https://api.kuleu.com/" },
+      { name: "免费API", imgUrl: "https://api.aa1.cn/assets/img/favicon.png", linkUrl: "https://api.aa1.cn/" },
+      { name: "OI-API", imgUrl: "https://oiapi.net/favicon.ico", linkUrl: "https://oiapi.net/" },
+      { name: "小枫公益", imgUrl: "https://api.xfabe.com/vite.svg", linkUrl: "https://api.xfabe.com/" },
+      { name: "星之阁API", imgUrl: "https://api.xingzhige.com/favicon.ico", linkUrl: "https://api.xingzhige.com/" },
+      { name: "无铭API", imgUrl: "https://jkapi.com/favicon.ico", linkUrl: "https://jkapi.com/" },
+      { name: "CRJ-API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744010499.7613.8_335.png", linkUrl: "http://api.070708.xyz/" },
+      { name: "希速云API", imgUrl: "http://api.sdbj.top/favicon.ico", linkUrl: "http://api.sdbj.top/" },
+      { name: "遇见API", imgUrl: "http://api.yujn.cn/favicon.ico", linkUrl: "https://api.yujn.cn/" },
+      { name: "久黎API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744011027.7879.3_789.png", linkUrl: "http://jiuli.xiaoapi.cn/" },
+      { name: "慕名API", imgUrl: "https://xiaoapi.cn/favicon.ico", linkUrl: "https://xiaoapi.cn/" },
+      { name: "韩小韩API", imgUrl: "https://api.vvhan.com/favicon.ico", linkUrl: "https://api.vvhan.com/" },
+      { name: "小轩API", imgUrl: "https://ovo.zicyun.cn/favicon.ico", linkUrl: "https://ovo.zicyun.cn/" },
+      { name: "咔咔云API", imgUrl: "https://api.kkjsz.cn/favicon.ico", linkUrl: "https://api.kkjsz.cn/" },
+      { name: "小冰API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744012829.8543.8_857.png", linkUrl: "https://xiaobapi.top/" },
+      { name: "陌然API", imgUrl: "http://api.mrgnb.cn/favicon.ico", linkUrl: "http://api.mrgnb.cn/" },
+      { name: "MirlKoi", imgUrl: "https://dev.iw233.cn/css/ico/logo.ico", linkUrl: "https://dev.iw233.cn/API/" },
+      { name: "像素云API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744013256.6046.8_206.png", linkUrl: "https://api.alcex.cn/" },
+      { name: "岑鬼鬼API", imgUrl: "https://browser6.qhimg.com/t11e5ce71a48e5b08fe244a10f6.jpg", linkUrl: "https://api.cenguigui.cn/" },
+      { name: "星宇云api", imgUrl: "https://api.fohok.xin/iop.jpg", linkUrl: "https://api.fohok.xin/" },
+      { name: "星宇云API", imgUrl: "https://api.xinyui.icu/iop.jpg", linkUrl: "https://api.xinyui.icu/" },
+      { name: "燃雨API", imgUrl: "https://ranyu.sbs/favicon.png", linkUrl: "https://ranyu.sbs/" },
+      { name: "梦久API", imgUrl: "https://i.loli.net/2020/11/05/tD1rSnPh9b3fFHe.jpg", linkUrl: "http://mengjiu.nki.pw/api/" },
+      { name: "苏青API", imgUrl: "http://sucyan.cfd/favicon.ico", linkUrl: "http://sucyan.cfd/" },
+      { name: "API store", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=951973773&spec=640", linkUrl: "https://apis.jxcxin.cn/" },
+{ name: "搏天API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1807139605&spec=640", linkUrl: "http://api.btstu.cn/" },
+{ name: "AbeimAPI", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2394449009&spec=640", linkUrl: "http://res.abeim.cn/api/" },
+{ name: "零艺客API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=656001878&spec=640", linkUrl: "https://api.lykep.com/" },
+{ name: "远昔API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=970095317&spec=640", linkUrl: "https://www.yuanxiapi.cn/" },
+{ name: "神代綺凛API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744014943.7895.6_532.png", linkUrl: "http://api.lolicon.app/" },
+{ name: "优启梦API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=774740085&spec=640", linkUrl: "https://api.uomg.com/" },
+{ name: "听风API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2889873061&spec=640", linkUrl: "https://api.gqr5.cn/" },
+{ name: "保罗API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1204958596&spec=640", linkUrl: "https://api.paugram.com/" },
+{ name: "DouAPI", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744015136.2593.3_165.png", linkUrl: "https://api.daidr.me/#/" },
+{ name: "流星云API", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744015260.2988.2_959.png", linkUrl: "https://liuxingw.com/api/" },
+{ name: "苏画API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2517270540&spec=640", linkUrl: "http://api.qemao.com/" },
+{ name: "独醉API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2633479934&spec=640", linkUrl: "https://api.dzzui.com/" },
+{ name: "山河API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3112824472&spec=640", linkUrl: "http://api.shanhe.kim/" },
+{ name: "godapi", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1872200548&spec=640", linkUrl: "https://cloud.qqshabi.cn/" },
+{ name: "小小API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2595557847&spec=640", linkUrl: "https://api-m.com/" },
+{ name: "我爱API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1694750&spec=640", linkUrl: "https://www.52api.cn/" },
+{ name: "大米API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=58866203&spec=640", linkUrl: "https://api.qqsuu.cn/" },
+{ name: "素颜API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1282384095&spec=640", linkUrl: "https://api.suyanw.cn/" },
+  { name: "旧独角兽API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3441109273&spec=640", linkUrl: "https://d.ovooa.cc/" },
+  { name: "小言API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1872786834&spec=640", linkUrl: "http://api.zxz.ee/" },
+{ name: "小小数据API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2092115940&spec=640", linkUrl: "https://api.heylie.cn/" },
+{ name: "云萌阁API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2670678497&spec=640", linkUrl: "https://api.yunmge.com/" },
+{ name: "唯梦API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3037370935&spec=640", linkUrl: "https://api.52vmy.cn/" },
+{ name: "简心云API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1634964&spec=640", linkUrl: "https://api.qvqa.cn/" },
+{ name: "98情缘API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=76891828&spec=640", linkUrl: "https://www.98qy.com/" },
+{ name: "优享云API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1330903352&spec=640", linkUrl: "https://api.ahfi.cn/" },
+{ name: "故梦API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1825642827&spec=640", linkUrl: "https://api.gumengya.com/" },
+{ name: "星空API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1258077747&spec=640", linkUrl: "https://api.71xk.com/" },
+{ name: "零七生活API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=905731585&spec=640", linkUrl: "https://api.oick.cn/" },
+{ name: "江江API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2256730959&spec=640", linkUrl: "http://x4f5rt.site/" },
+{ name: "苏苏API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=242498248&spec=640", linkUrl: "https://api.xn--ei1aa.cn/" },
+{ name: "免费API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=792075058&spec=640", linkUrl: "https://mxnzp.com/doc/list" },
+{ name: "星云API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1685027245&spec=640", linkUrl: "https://www.xygalaxy.com/xyApi" },
+{ name: "帝天API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3426864066&spec=640", linkUrl: "http://cp.2s.ink/" },
+{ name: "小枫API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1809185784&spec=640", linkUrl: "https://api.xfabe.com/" },
+{ name: "绿夏API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3039444943&spec=640", linkUrl: "https://api.lxurl.net/" },
+{ name: "幻宙API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3611311062&spec=640", linkUrl: "https://phapi.furina.junmatec.cn/" },
+{ name: "合我意API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=44248442&spec=640", linkUrl: "https://api.hewoyi.com/" },
+{ name: "远梦API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=277410954&spec=640", linkUrl: "https://api.mmp.cc/" },
+{ name: "DPAPI", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=729831790&spec=640", linkUrl: "https://api.dudunas.top/" },
+{ name: "回望API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2256235301&spec=640", linkUrl: "http://api.xyeopx.cn/" },
+{ name: "问情API", imgUrl: "https://q1.qlogo.cn/g?b=qq&nk=3828720&s=640", linkUrl: "https://free.wqwlkj.cn/" },
+{ name: "领酷API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=42300101&spec=640", linkUrl: "http://api.ilingku.com/" },
+{ name: "妖狐API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=1092029597&spec=640", linkUrl: "https://wanghun.top/" },
+{ name: "小渡API", imgUrl: "https://q1.qlogo.cn/g?b=qq&nk=3598609600&s=640", linkUrl: "https://api.dwo.cc/" },
+{ name: "看戏仔API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3192777846&spec=640", linkUrl: "https://api.kxzjoker.cn/" },
+{ name: "诉说API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=2827142002&spec=640", linkUrl: "http://api.bi71t5.cn/" }
+    ];
+    // 其他 API 列表
+    const otherApiList = [
+{ name: "客源大全", imgUrl: "https://web.qster.top/favicon.ico", linkUrl: "https://web.qster.top/" },
+{ name: "接口大全API", imgUrl: "https://q.qlogo.cn/headimg_dl?dst_uin=3161033486&spec=640", linkUrl: "https://www.free-api.com/" },
+{ name: "安生大全", imgUrl: "http://cdn.moji002.com/images/share/2025/04/07/1744014179.3735.3_689.png", linkUrl: "http://6.1668888.xyz/" },
+{ name: "豆子大全", imgUrl: "http://q.qlogo.cn/headimg_dl?dst_uin=3336530155&spec=640", linkUrl: "http://qwq.tangdouz.com/" }
+    ];
+    const topApiContainer = document.getElementById('topApiContainer');
+    const apiContainer = document.getElementById('apiContainer');
+    const otherApiContainer = document.getElementById('otherApiContainer');
+    const modal = document.getElementById('myModal');
+    const modalText = document.getElementById('modalText');
+    const cancelButton = document.getElementById('cancelButton');
+    const confirmButton = document.getElementById('confirmButton');
+
+    // 创建API项的函数
+    function createApiItem(api, container) {
+      const apiItem = document.createElement('div');
+      apiItem.className = 'api-item';
+      const img = document.createElement('img');
+      img.className = 'api-icon';
+      img.src = api.imgUrl;
+      img.alt = api.name + '图标';
+      img.onclick = function() {
+        modalText.textContent = `您即将跳转到 ${api.name} 的链接，是否继续?`;
+        modal.style.display = 'block';
+      };
+      img.onerror = function() {
+        // 图片加载失败时的处理，可替换为默认图片
+        this.src = 'default-icon.png'; 
+      };
+      const p = document.createElement('p');
+      p.textContent = api.name;
+      apiItem.appendChild(img);
+      apiItem.appendChild(p);
+      container.appendChild(apiItem);
+    }
+
+    // 处理置顶API
+    topApiList.forEach(api => createApiItem(api, topApiContainer));
+    // 处理普通API
+    apiList.forEach(api => createApiItem(api, apiContainer));
+    // 处理其他API
+    otherApiList.forEach(api => createApiItem(api, otherApiContainer));
+
+    // 搜索功能
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function () {
+      const searchText = this.value.toLowerCase();
+      const allApiItems = document.querySelectorAll('.api-item');
+      allApiItems.forEach((item) => {
+        const apiName = item.querySelector('p').textContent.toLowerCase();
+        if (apiName.includes(searchText)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+
+    // 轮播图逻辑
+    const imgs = document.querySelectorAll('header img');
+    let currentIndex = 0;
+    function changeImage() {
+      imgs[currentIndex].classList.remove('active');
+      currentIndex = (currentIndex + 1) % imgs.length;
+      imgs[currentIndex].classList.add('active');
+    }
+    setInterval(changeImage, 3000);
+
+    // 关闭模态框
+    cancelButton.onclick = function() {
+      modal.style.display = 'none';
+    };
+    confirmButton.onclick = function() {
+      const apiLink = modalText.textContent.match(/跳转到 (.*) 的链接/)[1];
+      const targetApi = topApiList.find(api => api.name === apiLink) 
+                      || apiList.find(api => api.name === apiLink) 
+                      || otherApiList.find(api => api.name === apiLink);
+      if (targetApi) {
+        window.location.href = targetApi.linkUrl;
+      }
+      modal.style.display = 'none';
+    };
+  </script>
+</body>
+</html>
